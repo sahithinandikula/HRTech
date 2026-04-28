@@ -21,3 +21,4 @@ Thumbs.db
 
 # IDE directories
 .vscode/
+.vercel

@@ -15,6 +15,11 @@ function AiContextPanel({ docs, quickActions, image }) {
       return
     }
 
+    if (action === 'Book Benefits Call') {
+      window.open('https://calendar.google.com', '_blank')
+      return
+    }
+
     if (action.includes('Download')) {
       let query = supabase.from('documents').select('*')
       const { data } = await query.order('uploaded_at', { ascending: false }).limit(1)

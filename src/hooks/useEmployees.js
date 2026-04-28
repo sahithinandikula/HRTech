@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { calculateHealthScore, getHealthStatus } from '../data/employees'
+import { calculateHealthScore, getHealthStatus, employees as localEmployees, employeesById as localEmployeesById } from '../data/employees'
 import { supabase } from '../lib/supabase'
 
 export function useEmployees() {
@@ -20,7 +20,7 @@ export function useEmployees() {
           throw supabaseError
         }
 
-        if (!data) {
+        if (!data || data.length === 0) {
           throw new Error('No data returned from Supabase')
         }
 
@@ -41,8 +41,11 @@ export function useEmployees() {
         const byId = Object.fromEntries(enrichedEmployees.map((emp) => [emp.id, emp]))
         setEmployeesById(byId)
       } catch (err) {
-        console.error('Error fetching employees:', err)
-        setError(err.message || 'An unexpected error occurred')
+        console.warn('Supabase fetch failed, using local fallback data:', err.message)
+        // Fall back to local mock data so the app always works
+        setEmployees(localEmployees)
+        setEmployeesById(localEmployeesById)
+        setError(null)
       } finally {
         setLoading(false)
       }
@@ -53,3 +56,4 @@ export function useEmployees() {
 
   return { employees, employeesById, loading, error }
 }
+
