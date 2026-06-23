@@ -1,22 +1,20 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { askGemini } from '../lib/gemini'
 import MaterialIcon from './MaterialIcon'
 
 function renderMessageText(text) {
   const parts = text.split('\n\n')
-  return parts.map((part) => <p key={part}>{part}</p>)
+  return parts.map((part, i) => <p key={i}>{part}</p>)
 }
 
 function AssistantChatPane({ messages: initialMessages }) {
   const [chatMessages, setChatMessages] = useState(initialMessages || [])
   const [inputText, setInputText] = useState('')
-  const [knowledgeDoc, setKnowledgeDoc] = useState(null)
   const [isProcessing, setIsProcessing] = useState(false)
 
-  // Document is fetched on-demand during send to ensure we have the latest
-
   const handleSend = async () => {
-    if (!inputText.trim()) return
+    if (!inputText.trim() || isProcessing) return
 
     const userMsg = {
       role: 'user',
@@ -28,51 +26,28 @@ function AssistantChatPane({ messages: initialMessages }) {
     setInputText('')
     setIsProcessing(true)
 
-    // Fetch the latest document dynamically
-    const { data } = await supabase.from('documents').select('*').order('uploaded_at', { ascending: false }).limit(1)
-    const activeDoc = data && data.length > 0 ? data[0] : null
-    setKnowledgeDoc(activeDoc)
-
-    setTimeout(() => {
-      let responseText = "I couldn't find an exact answer in the uploaded document. Please check with HR directly."
-
-      if (activeDoc && activeDoc.content) {
-        // filter out common stopwords to make our basic search more robust
-        const stopWords = ['what', 'when', 'where', 'which', 'who', 'whom', 'whose', 'why', 'how', 'this', 'that', 'with', 'from', 'have', 'does']
-        const words = userMsg.text.toLowerCase().split(' ')
-          .map(w => w.replace(/[^a-z0-9]/g, ''))
-          .filter((w) => w.length > 3 && !stopWords.includes(w))
-
-        if (words.length > 0) {
-          const sentences = activeDoc.content.split('. ')
-          
-          let bestMatch = null
-          let highestScore = 0
-          
-          sentences.forEach(s => {
-            const lowerS = s.toLowerCase()
-            const score = words.filter(w => lowerS.includes(w)).length
-            // Give preference to sentences that contain at least a significant overlap
-            if (score > highestScore) {
-              highestScore = score
-              bestMatch = s
-            }
-          })
-
-          if (bestMatch && highestScore > 0) {
-            let matchedText = bestMatch.trim()
-            // If the text contains " A:" or " Answer:" (or Q&A format), extract only the answer portion
-            const regex = /(?:A:|Answer:)\s*(.*)/i
-            const extracted = matchedText.match(regex)
-            
-            if (extracted && extracted[1]) {
-              matchedText = extracted[1].trim()
-            }
-            
-            responseText = matchedText + (matchedText.endsWith('.') ? '' : '.')
-          }
+    try {
+      // Fetch the latest document for context (non-blocking if it fails)
+      let docContent = null
+      try {
+        const { data } = await supabase
+          .from('documents')
+          .select('content')
+          .order('uploaded_at', { ascending: false })
+          .limit(1)
+        if (data && data.length > 0 && data[0].content) {
+          docContent = data[0].content
         }
+      } catch {
+        // No document context available — that's fine
       }
+
+      // Call Gemini with conversation history
+      const responseText = await askGemini(
+        userMsg.text,
+        docContent,
+        chatMessages.filter((m) => m.role === 'user' || m.role === 'assistant'),
+      )
 
       const botMsg = {
         role: 'assistant',
@@ -81,8 +56,16 @@ function AssistantChatPane({ messages: initialMessages }) {
       }
 
       setChatMessages((prev) => [...prev, botMsg])
+    } catch (err) {
+      const errorMsg = {
+        role: 'assistant',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        text: 'Sorry, I encountered an error processing your request. Please try again.',
+      }
+      setChatMessages((prev) => [...prev, errorMsg])
+    } finally {
       setIsProcessing(false)
-    }, 1200)
+    }
   }
 
   return (
@@ -93,11 +76,11 @@ function AssistantChatPane({ messages: initialMessages }) {
             <MaterialIcon className="[font-variation-settings:'FILL'_1,'wght'_500,'GRAD'_0,'opsz'_24] text-xl" name="smart_toy" />
           </div>
           <div>
-            <h3 className="font-headline text-lg font-bold">Benefits Enrollment AI</h3>
+            <h3 className="font-headline text-lg font-bold">HR Onboarding AI</h3>
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 animate-pulse rounded-full bg-secondary-fixed" />
               <span className="text-xs font-medium text-on-surface-variant">
-                Assistant is online and processing
+                Powered by Gemini
               </span>
             </div>
           </div>
@@ -225,7 +208,7 @@ function AssistantChatPane({ messages: initialMessages }) {
           </div>
         </div>
         <p className="mt-3 text-center text-[10px] font-medium text-on-surface-variant">
-          AI can make mistakes. Please verify important HR information.
+          Powered by Google Gemini · AI can make mistakes
         </p>
       </div>
     </section>

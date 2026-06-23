@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useAuth } from '../context/AuthContext'
 import OverviewPipelineBoard from '../components/OverviewPipelineBoard'
 import OverviewStatCard from '../components/OverviewStatCard'
 import PredictiveInsightCard from '../components/PredictiveInsightCard'
@@ -11,7 +12,11 @@ import { dashboardOverviewPage } from '../data/zipScreensData'
 function DashboardOverviewPage() {
   const page = dashboardOverviewPage
   const { employees, loading, error } = useEmployees()
+  const { user: authUser } = useAuth()
   const [showNewHireModal, setShowNewHireModal] = useState(false)
+
+  // Derive greeting from the authenticated user
+  const greetingName = authUser?.name?.split(' ')[0] || 'there'
 
   if (loading) {
     return (
@@ -91,7 +96,7 @@ function DashboardOverviewPage() {
       <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <h2 className="font-headline text-4xl font-extrabold tracking-tight text-on-surface sm:text-5xl">
-            {page.greetingTitle}
+            Good morning, {greetingName}
           </h2>
           <p className="mt-2 text-sm font-medium text-on-surface-variant sm:text-base">
             You have <span className="font-bold text-primary">{employees.length} active</span> onboarding profiles.
@@ -101,7 +106,7 @@ function DashboardOverviewPage() {
 
         <button
           id="new-hire-btn"
-          className="inline-flex items-center justify-center gap-2 self-start rounded-full bg-gradient-to-br from-primary to-primary-container px-6 py-3 text-sm font-bold text-white shadow-[0_14px_30px_rgba(37,99,235,0.25)] transition hover:opacity-95"
+          className="inline-flex items-center justify-center gap-2 self-start rounded-full bg-gradient-to-br from-primary to-primary-container px-6 py-3 text-sm font-bold text-white shadow-[0_14px_30px_rgba(37,99,235,0.25)] transition hover:opacity-95 hover-btn-glow"
           type="button"
           onClick={() => setShowNewHireModal(true)}
         >

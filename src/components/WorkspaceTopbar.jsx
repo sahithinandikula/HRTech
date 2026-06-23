@@ -1,6 +1,10 @@
+import { useAuth } from '../context/AuthContext'
 import MaterialIcon from './MaterialIcon'
 
-function WorkspaceTopbar({ placeholder, user, label, badge }) {
+function WorkspaceTopbar({ placeholder, user: propUser, label, badge }) {
+  const { user: authUser } = useAuth()
+  const user = authUser || propUser
+
   return (
     <header className="glass-nav sticky top-0 z-20 flex flex-col gap-4 rounded-[28px] px-5 py-4 shadow-[0_10px_30px_rgba(148,163,184,0.12)] sm:flex-row sm:items-center sm:justify-between sm:px-8">
       <div className="relative w-full max-w-md">
@@ -31,7 +35,13 @@ function WorkspaceTopbar({ placeholder, user, label, badge }) {
           </span>
         ) : null}
         <div className="h-8 w-8 overflow-hidden rounded-full border border-outline-variant bg-surface-container-highest">
-          <img alt={user.name} className="h-full w-full object-cover" src={user.avatar} />
+          {user.avatar ? (
+            <img alt={user.name} className="h-full w-full object-cover" src={user.avatar} />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-primary-fixed text-xs font-bold text-primary">
+              {user.initials}
+            </div>
+          )}
         </div>
       </div>
     </header>

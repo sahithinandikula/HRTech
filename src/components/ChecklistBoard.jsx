@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ChecklistSection from './ChecklistSection'
 import SectionCard from './SectionCard'
 
-/* ── inline keyframes injected once ── */
+const LS_KEY = 'stitch_checklist'
+
 const TOAST_STYLE = `
 @keyframes _toast-in {
   from { opacity: 0; transform: translateY(-12px) scale(0.95); }
@@ -16,24 +17,65 @@ const TOAST_STYLE = `
 ._toast-leave { animation: _toast-out 0.28s ease-in              forwards; }
 `
 
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(LS_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch { return {} }
+}
+
 function ChecklistBoard({ sections }) {
-  const [toastState, setToastState] = useState('hidden') // 'hidden' | 'enter' | 'leave'
+  // completedMap: { [taskTitle]: true/false }
+  const [completedMap, setCompletedMap] = useState(() => {
+    const saved = loadSaved()
+    // Merge with initial data: items already 'Completed' in data are also marked
+    const initial = { ...saved }
+    for (const section of sections) {
+      for (const item of section.items) {
+        if (!(item.title in initial)) {
+          initial[item.title] = item.status === 'Completed'
+        }
+      }
+    }
+    return initial
+  })
+
+  const [toastState, setToastState] = useState('hidden')
+
+  function handleToggle(title) {
+    setCompletedMap((prev) => ({ ...prev, [title]: !prev[title] }))
+  }
 
   function handleSave() {
-    if (toastState !== 'hidden') return          // debounce rapid clicks
+    if (toastState !== 'hidden') return
+    localStorage.setItem(LS_KEY, JSON.stringify(completedMap))
     setToastState('enter')
-
-    // start fade-out after 2.2 s, fully hide at 2.5 s
     setTimeout(() => setToastState('leave'), 2200)
     setTimeout(() => setToastState('hidden'), 2500)
   }
 
+  // Compute augmented sections with live status from completedMap
+  const augmentedSections = sections.map((section) => ({
+    ...section,
+    items: section.items.map((item) => {
+      const isCompleted = completedMap[item.title] ?? false
+      return {
+        ...item,
+        status: isCompleted ? 'Completed' : item.status === 'Completed' && !isCompleted ? 'Pending' : item.status,
+        tone: isCompleted ? 'success' : item.status === 'Completed' && !isCompleted ? 'neutral' : item.tone,
+      }
+    }),
+  }))
+
+  // Calculate progress
+  const totalItems = sections.reduce((sum, s) => sum + s.items.length, 0)
+  const completedCount = Object.values(completedMap).filter(Boolean).length
+  const progressPct = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0
+
   return (
     <>
-      {/* ── inject keyframes once ── */}
       <style>{TOAST_STYLE}</style>
 
-      {/* ── toast ── */}
       {toastState !== 'hidden' && (
         <div
           role="status"
@@ -44,7 +86,6 @@ function ChecklistBoard({ sections }) {
             backdropFilter: 'blur(12px)',
           }}
         >
-          {/* checkmark icon */}
           <span
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -58,7 +99,7 @@ function ChecklistBoard({ sections }) {
             </svg>
           </span>
           <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.875rem', whiteSpace: 'nowrap' }}>
-            Progress has been saved
+            Progress saved ({progressPct}% complete)
           </span>
         </div>
       )}
@@ -67,13 +108,13 @@ function ChecklistBoard({ sections }) {
         <div className="px-8 py-10">
           <h3 className="font-headline text-2xl font-extrabold text-on-surface">Step-by-step Integration</h3>
           <p className="mt-1 text-sm text-on-surface-variant">
-            Manage your pending actions and documentation.
+            Manage your pending actions and documentation. <span className="font-semibold text-primary">{completedCount}/{totalItems} completed</span>
           </p>
         </div>
 
         <div className="space-y-12 px-8 pb-12">
-          {sections.map((section) => (
-            <ChecklistSection key={section.title} section={section} />
+          {augmentedSections.map((section) => (
+            <ChecklistSection key={section.title} section={section} onToggle={handleToggle} />
           ))}
         </div>
 

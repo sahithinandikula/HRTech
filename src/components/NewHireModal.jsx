@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { useEmployeeContext } from '../context/EmployeeContext'
 
 const INITIAL_FORM = {
   name: '',
@@ -12,6 +12,7 @@ const INITIAL_FORM = {
 }
 
 function NewHireModal({ onClose, onSuccess }) {
+  const { addEmployee } = useEmployeeContext()
   const [form, setForm] = useState(INITIAL_FORM)
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -28,22 +29,18 @@ function NewHireModal({ onClose, onSuccess }) {
     setError(null)
 
     try {
-      const { error: supabaseError } = await supabase.from('employees').insert([
-        {
-          id: crypto.randomUUID(),
-          name: form.name,
-          role: form.role,
-          team: form.team,
-          location: form.location,
-          joined: form.joined,
-          progress: Number(form.progress),
-          questionsAsked: Number(form.questionsAsked),
-          lastActive: 'Just now',
-          avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(form.name)}`,
-        },
-      ])
-
-      if (supabaseError) throw supabaseError
+      await addEmployee({
+        id: crypto.randomUUID(),
+        name: form.name,
+        role: form.role,
+        team: form.team,
+        location: form.location,
+        joined: form.joined,
+        progress: Number(form.progress) || 0,
+        questionsAsked: Number(form.questionsAsked) || 0,
+        lastActive: 'Just now',
+        avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(form.name)}`,
+      })
 
       setSuccess(true)
       if (onSuccess) onSuccess()

@@ -1,10 +1,7 @@
-export const workspaceUser = {
-  name: 'Jane Doe',
-  role: 'HR Lead',
-  initials: 'JD',
-  avatar:
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuAVqHiK1GzWJN5DJ_fhtuiqHBuivaVEXQ6WGN0pOriFDmIHPQ5Ct3IpUWNhKw17UyqOoUgPbZrmXjZFvffQ5KkVo4Gohv2Ravvj0qBlpAkWvXcNnIp6_HcnB7rQ1EDmL3wVnJUuUN5X1cI6fncDQsQpCr-buyX0fQ-eH0DOFAlOvwJX78DHxQiPVpFCWyIbhSh16u1tdAn9hSLgTbqOZ78gXXQvn75JoLB0GGfMakXoU-zNNAJEt5Jz1X6i5p_Lca4nXDwaSLiViRtu',
-}
+import { currentUser } from './currentUser'
+
+// Re-export the unified HR persona for backward compatibility
+export const workspaceUser = currentUser
 
 export const employeeDirectory = [
   {
@@ -104,7 +101,7 @@ export const onboardingChecklistPage = {
   searchPlaceholder: 'Search tasks...',
   title: 'Onboarding Checklist',
   description:
-    'Welcome to the team! Complete these steps to finalize your integration into Cognitive Sanctuary.',
+    'Welcome to the team! Complete these steps to finalize your integration into Stitch.',
   overallCompletion: 75,
   insight:
     "You're moving 15% faster than the average hire! Complete the Security Training today to stay ahead of your first-week milestones.",

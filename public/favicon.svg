@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="brand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <!-- Background circle with smooth gradient -->
+  <rect width="32" height="32" rx="8" fill="url(#brand-grad)" />
+  <!-- Overlapping interlocking thread loops -->
+  <g filter="url(#glow)">
+    <path d="M9 16 C 9 11, 15 11, 16 16 C 17 21, 23 21, 23 16 C 23 11, 17 11, 16 16 C 15 21, 9 21, 9 16 Z" 
+          fill="none" 
+          stroke="#ffffff" 
+          stroke-width="3" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" />
+    <!-- Connector dots representing stitch nodes -->
+    <circle cx="9" cy="16" r="2.5" fill="#38bdf8" />
+    <circle cx="23" cy="16" r="2.5" fill="#38bdf8" />
+    <circle cx="16" cy="16" r="2" fill="#ffffff" />
+  </g>
+</svg>

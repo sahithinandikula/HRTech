@@ -22,7 +22,7 @@ function OverviewStatCard({ stat }) {
   const tone = toneStyles[stat.tone]
 
   return (
-    <article className="relative overflow-hidden rounded-[30px] bg-surface-container-lowest p-8 shadow-card">
+    <article className="relative overflow-hidden rounded-[30px] bg-surface-container-lowest p-8 shadow-card hover-card-premium">
       <div className={`mb-6 flex h-12 w-12 items-center justify-center rounded-2xl ${tone.iconWrap}`}>
         <MaterialIcon name={stat.icon} />
       </div>

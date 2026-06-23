@@ -1,6 +1,6 @@
 import ChecklistTaskCard from './ChecklistTaskCard'
 
-function ChecklistSection({ section }) {
+function ChecklistSection({ section, onToggle }) {
   return (
     <section>
       <h4 className="mb-6 flex items-center gap-2 px-2 font-headline text-xs font-bold uppercase tracking-[0.24em] text-on-surface-variant">
@@ -9,7 +9,7 @@ function ChecklistSection({ section }) {
       </h4>
       <div className="space-y-3">
         {section.items.map((item) => (
-          <ChecklistTaskCard item={item} key={item.title} />
+          <ChecklistTaskCard item={item} key={item.title} onToggle={onToggle} />
         ))}
       </div>
     </section>

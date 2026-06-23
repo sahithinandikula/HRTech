@@ -1,3 +1,5 @@
+import { currentUser, firstName } from './currentUser'
+
 export const dashboardOverviewPage = {
   navItems: [
     { label: 'Dashboard', icon: 'dashboard', href: '/', end: true },
@@ -5,15 +7,10 @@ export const dashboardOverviewPage = {
     { label: 'AI Assistant', icon: 'smart_toy', href: '/chat' },
     { label: 'Checklist', icon: 'fact_check', href: '/checklist' },
   ],
-  user: {
-    name: 'Sarah Mitchell',
-    role: 'HR Lead',
-    avatar:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBadDh0w14Bg5pHLpOhU95qZXON5j_xMiBcP_nZYDMK5eDIF8rg2wnX8wsUfCRUNjqmRnYNuxzDZ0xd0pWNUzNMUJlRyxd4hm_OgnQVtcaw_BpkFEXH9R5cZsaFu-HszjkU66fDdVzvt-ByT3s4lgdnldjZYlrNO6Jpovdk6kJ-I90QrIFABhha2iEg4kQ4bRS0DJXJtev8cM7GubmUEoCSUXUJfdDKnxOBu_BdoeauPqj6t1wzuJjCoAjaDa_vSyQIV3Zme8u9izAY',
-  },
+  user: currentUser,
   searchPlaceholder: 'Search employees or insights...',
   topbarLabel: 'Onboarding Alpha',
-  greetingTitle: 'Good morning, Sarah',
+  greetingTitle: `Good morning, ${firstName}`,
   greetingDescription:
     'You have 26 pending onboards this week. AI suggests prioritizing Alex Chen.',
   stats: [
@@ -86,12 +83,7 @@ export const aiAssistantPage = {
     { label: 'AI Assistant', icon: 'smart_toy', href: '/chat' },
     { label: 'Checklist', icon: 'fact_check', href: '/checklist' },
   ],
-  user: {
-    name: 'Alex Rivera',
-    role: 'HR Lead',
-    avatar:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuASCHRVO1-6HAdzz8xW5y4gMwkDsUNAG7z_yIaZtvpe79B8DLNZ3Pc8zZ5cGPfw4s9N20k5AMUX-aqDmAOvjgi-NXVGItoZg4bksvg6IzT1mvL9DhhPR0TLPnfjaEUubnVBoDx4AmNk5YO0xRxq4fWUuQ2cmYfeEzYXcQ_rMZ2enXtiTTCHGiFwdkYv49Wrv2ZXBdv01wdWSiUqvVGuGbApudmxTBFTauey5OJt2oCmfk28R1wsmFH-niG9S9q-i7Ars3Q7PYp8W02e',
-  },
+  user: currentUser,
   searchPlaceholder: 'Search conversations or help docs...',
   topbarBadge: 'Pro Plan',
   conversations: [

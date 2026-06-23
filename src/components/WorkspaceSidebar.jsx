@@ -1,12 +1,18 @@
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import MaterialIcon from './MaterialIcon'
 
-function WorkspaceSidebar({ items, user }) {
+function WorkspaceSidebar({ items, user: propUser }) {
+  const { user: authUser, signOut } = useAuth()
+
+  // Prefer the live auth user; fall back to the static prop
+  const user = authUser || propUser
+
   return (
     <aside className="flex h-full flex-col bg-[#f9fbfe] px-4 py-6 lg:w-64 lg:border-r lg:border-white/40">
       <div className="mb-10 px-4">
         <h1 className="font-headline text-2xl font-bold leading-none tracking-tight text-slate-900">
-          Cognitive Sanctuary
+          Stitch
         </h1>
         <p className="mt-1 text-xs uppercase tracking-[0.24em] text-on-surface-variant">
           HR Intelligence
@@ -48,9 +54,10 @@ function WorkspaceSidebar({ items, user }) {
         <button
           className="mb-4 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-slate-500 transition hover:bg-slate-200/40"
           type="button"
+          onClick={() => signOut()}
         >
-          <MaterialIcon className="text-[18px]" name="settings" />
-          <span>Settings</span>
+          <MaterialIcon className="text-[18px]" name="logout" />
+          <span>Sign Out</span>
         </button>
 
         <div className="flex items-center gap-3 rounded-[24px] bg-surface-container-low p-4 text-on-surface-variant shadow-[0_10px_22px_rgba(148,163,184,0.08)]">
